@@ -26,4 +26,4 @@ ExamineIndexes/
 */App_Data/Logs/*
 */App_Data/umbraco.licensing.log.txt
 */App_Data/umbraco.config
-
+/packages
