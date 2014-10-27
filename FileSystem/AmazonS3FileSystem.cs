@@ -8,7 +8,7 @@
 
     public class AmazonS3FileSystem
     {
-        private readonly AmazonS3 _client;
+        private readonly IAmazonS3 _client;
         private string _bucketName;
 
         #region Constructor
@@ -33,9 +33,12 @@
         {
             try
             {
-                var response = _client.GetObjectMetadata(new GetObjectMetadataRequest()
-                   .WithBucketName(_bucketName)
-                   .WithKey(GetKey(path, fileName)));
+                var response = _client.GetObjectMetadata(
+                                        new GetObjectMetadataRequest()
+                                        {
+                                            BucketName = _bucketName,
+                                            Key = GetKey(path, fileName)
+                                        });
 
                 return true;
             }
@@ -66,17 +69,17 @@
             }
 
             // Prepare put request            
-            var request = new PutObjectRequest();
-
-            request.WithBucketName(_bucketName)
-                .WithCannedACL(S3CannedACL.PublicRead)
-                .WithFilePath(localFile)
-                .WithKey(GetKey(path, fileName))
-                .WithTimeout(-1);
+            var request = new PutObjectRequest()
+                                {
+                                    BucketName = _bucketName,
+                                    CannedACL = S3CannedACL.PublicRead,
+                                    FilePath = localFile,
+                                    Key = GetKey(path,fileName)
+                                }; // NOTE: timeout property not found during AWSSDK v1 to v2 code changes
 
             // Put file
             var response = _client.PutObject(request);
-            response.Dispose();
+            //response.Dispose(); // NOTE: Dispose() not valid during AWSSDK v1 to v2 code changes
         }
 
         /// <summary>
@@ -87,13 +90,15 @@
         public void DeleteFile(string path, string fileName)
         {
             // Prepare delete request
-            var request = new DeleteObjectRequest();
-            request.WithBucketName(_bucketName)
-                .WithKey(GetKey(path, fileName));
+            var request = new DeleteObjectRequest()
+                {
+                    BucketName = _bucketName,
+                    Key = GetKey(path, fileName)
+                };
 
             // Delete file
             var response = _client.DeleteObject(request);
-            response.Dispose();
+            //response.Dispose();
         }
 
         /// <summary>
@@ -103,8 +108,11 @@
         public void DeleteFolder(string prefix)
         {
             // Get all object with specified prefix
-            var listRequest = new ListObjectsRequest();
-            listRequest.WithBucketName(_bucketName).WithPrefix(prefix);
+            var listRequest = new ListObjectsRequest()
+                                    {
+                                        BucketName = _bucketName,
+                                        Prefix = prefix
+                                    };
 
             var deleteRequest = new DeleteObjectsRequest();
             deleteRequest.BucketName = _bucketName;
@@ -131,10 +139,10 @@
             while (listRequest != null);
 
             // Delete all the object with specified prefix.
-            if (deleteRequest.Keys.Count > 0)
+            if (deleteRequest.Objects.Count > 0) // changes Keys to Object during AWSSDK v1 to v2 code changes
             {
                 var deleteResponse = _client.DeleteObjects(deleteRequest);
-                deleteResponse.Dispose();
+                //deleteResponse.Dispose();
             }
         }
 

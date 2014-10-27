@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWSSDK">
-      <HintPath>packages\AWSSDK.1.5.18.0\lib\AWSSDK.dll</HintPath>
+      <HintPath>packages\AWSSDK.2.2.2.1\lib\net45\AWSSDK.dll</HintPath>
     </Reference>
     <Reference Include="businesslogic">
       <HintPath>packages\UmbracoCms.Core.6.0.3\lib\businesslogic.dll</HintPath>
